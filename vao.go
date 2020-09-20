@@ -18,6 +18,10 @@ func NewVAO() *VAO {
   return &v
 }
 
+func (v *VAO) Length() int32 {
+  return v.length
+}
+
 func (v *VAO) Bind() {
   gl.BindVertexArray(v.id)
   gl.EnableVertexAttribArray(0)

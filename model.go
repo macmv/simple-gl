@@ -12,3 +12,7 @@ type Model struct {
 
   texture *Texture
 }
+
+func (m *Model) Vao() *VAO {
+  return m.vao
+}
