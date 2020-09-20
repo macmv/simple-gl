@@ -5,7 +5,7 @@ import (
 )
 
 type Model struct {
-  transform mgl32.Mat4
+  Transform mgl32.Mat4
 
   vao *VAO
 

@@ -19,6 +19,8 @@ func NewWindow(title string, width, height int) *Window {
     panic(err)
   }
   glfw_window.MakeContextCurrent()
+  gl.Enable(gl.CULL_FACE);
+  gl.Enable(gl.DEPTH_TEST);
 
   w := Window{}
   w.width = width
@@ -38,7 +40,7 @@ func (w *Window) Render(model *Model) error {
   if w.current_shader == nil {
     return nil
   }
-  w.current_shader.StoreUniform4f("model", model.transform)
+  w.current_shader.StoreUniform4f("model", model.Transform)
 
   // gl.ActiveTexture(gl.TEXTURE0)
   // model.texture.Bind()
@@ -56,6 +58,8 @@ func (w *Window) Finish() {
 func (w *Window) Sync() {
   w.glfw.SwapBuffers()
   glfw.PollEvents()
+  gl.ClearColor(0, 0, 0, 1);
+  gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 }
 
 func (w *Window) Closed() bool {

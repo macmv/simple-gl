@@ -7,16 +7,28 @@ import (
 func NewCube(width, height, depth float32) *Model {
   indices := []int32{
     // Bottom
-    2, 1, 0,
-    2, 1, 3,
+    0, 1, 2,
+    3, 2, 1,
+
+    // Top
+    6, 7, 5,
+    6, 5, 4,
 
     // Front
-    4, 5, 0,
-    4, 0, 5,
+    0, 4, 5,
+    0, 5, 1,
+
+    // Back
+    2, 3, 6,
+    7, 6, 3,
+
+    // Left
+    3, 5, 7,
+    5, 3, 1,
 
     // Right
-    1, 5, 3,
-    1, 3, 5,
+    6, 4, 2,
+    0, 2, 4,
   }
   verts := []float32{
     // Bottom
@@ -58,6 +70,6 @@ func NewCube(width, height, depth float32) *Model {
   vao.SetData(indices, verts, uvs, normals)
   m := Model{}
   m.vao = vao
-  m.transform = mgl32.Ident4()
+  m.Transform = mgl32.Ident4()
   return &m
 }

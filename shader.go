@@ -104,14 +104,15 @@ func (s *Shader) StoreUniform4f(name string, val mgl32.Mat4) {
   if !ok {
     panic("Invalid name " + name)
   }
-  fmt.Println("Storing", name, "at", loc)
   gl.UniformMatrix4fv(loc, 1, false, &val[0])
 }
 
 func (s *Shader) LoadPerspective(window *Window, near, far float32) {
   projection := mgl32.Perspective(mgl32.DegToRad(45.0), float32(window.Width()) / float32(window.Height()), near, far)
   s.StoreUniform4f("projection", projection)
+}
 
-  camera := mgl32.LookAtV(mgl32.Vec3{3, 3, 3}, mgl32.Vec3{0, 0, 0}, mgl32.Vec3{0, 1, 0})
+func (s *Shader) LoadCamera(x, y, z float32) {
+  camera := mgl32.LookAtV(mgl32.Vec3{x, y, z}, mgl32.Vec3{0, 1, 0}, mgl32.Vec3{0, 1, 0})
   s.StoreUniform4f("camera", camera)
 }
