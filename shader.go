@@ -59,6 +59,7 @@ func NewShader(vertex_path, fragment_path string) (*Shader, error) {
   (&s).LoadUniform("projection")
   (&s).LoadUniform("camera")
   (&s).LoadUniform("model")
+  (&s).LoadUniform("color")
   return &s, nil
 }
 
@@ -99,7 +100,7 @@ func (s *Shader) LoadUniform(name string) {
   }
 }
 
-func (s *Shader) StoreUniform4f(name string, val mgl32.Mat4) {
+func (s *Shader) StoreUniformMat4f(name string, val mgl32.Mat4) {
   loc, ok := s.locations[name]
   if !ok {
     panic("Invalid name " + name)
@@ -107,12 +108,20 @@ func (s *Shader) StoreUniform4f(name string, val mgl32.Mat4) {
   gl.UniformMatrix4fv(loc, 1, false, &val[0])
 }
 
+func (s *Shader) StoreUniform3f(name string, val mgl32.Vec3) {
+  loc, ok := s.locations[name]
+  if !ok {
+    panic("Invalid name " + name)
+  }
+  gl.Uniform3f(loc, val[0], val[1], val[2])
+}
+
 func (s *Shader) LoadPerspective(window *Window, near, far float32) {
   projection := mgl32.Perspective(mgl32.DegToRad(45.0), float32(window.Width()) / float32(window.Height()), near, far)
-  s.StoreUniform4f("projection", projection)
+  s.StoreUniformMat4f("projection", projection)
 }
 
 func (s *Shader) LoadCamera(x, y, z float32) {
   camera := mgl32.LookAtV(mgl32.Vec3{x, y, z}, mgl32.Vec3{0, 0, 0}, mgl32.Vec3{0, 1, 0})
-  s.StoreUniform4f("camera", camera)
+  s.StoreUniformMat4f("camera", camera)
 }

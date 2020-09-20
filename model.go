@@ -6,6 +6,7 @@ import (
 
 type Model struct {
   Transform mgl32.Mat4
+  Color mgl32.Vec3
 
   vao *VAO
 

@@ -40,7 +40,8 @@ func (w *Window) Render(model *Model) error {
   if w.current_shader == nil {
     return nil
   }
-  w.current_shader.StoreUniform4f("model", model.Transform)
+  w.current_shader.StoreUniformMat4f("model", model.Transform)
+  w.current_shader.StoreUniform3f("color", model.Color)
 
   // gl.ActiveTexture(gl.TEXTURE0)
   // model.texture.Bind()
