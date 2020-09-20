@@ -113,6 +113,6 @@ func (s *Shader) LoadPerspective(window *Window, near, far float32) {
 }
 
 func (s *Shader) LoadCamera(x, y, z float32) {
-  camera := mgl32.LookAtV(mgl32.Vec3{x, y, z}, mgl32.Vec3{0, 1, 0}, mgl32.Vec3{0, 1, 0})
+  camera := mgl32.LookAtV(mgl32.Vec3{x, y, z}, mgl32.Vec3{0, 0, 0}, mgl32.Vec3{0, 1, 0})
   s.StoreUniform4f("camera", camera)
 }
