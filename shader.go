@@ -53,12 +53,12 @@ func NewShader(vertex_path, fragment_path string) (*Shader, error) {
     return nil, fmt.Errorf("Failed to link program: %v", log)
   }
 
-  gl.DeleteShader(vertex)
-  gl.DeleteShader(fragment)
-
   s := Shader{}
   s.id = program
   s.locations = make(map[string]int32)
+  (&s).LoadUniform("projection")
+  (&s).LoadUniform("camera")
+  (&s).LoadUniform("model")
   return &s, nil
 }
 
@@ -84,16 +84,34 @@ func compile_shader(source string, stype uint32) (uint32, error) {
   return shader, nil
 }
 
+func (s *Shader) LoadUniform(name string) {
+  _, ok := s.locations[name]
+  if !ok {
+    loc := gl.GetUniformLocation(s.id, gl.Str(name + "\x00"))
+    code := gl.GetError()
+    if code != 0 {
+      fmt.Println("Got loc:", loc)
+      fmt.Println("Name:", name)
+      fmt.Println("Code:", code)
+      panic("Got error while getting uniform location")
+    }
+    s.locations[name] = loc
+  }
+}
+
 func (s *Shader) StoreUniform4f(name string, val mgl32.Mat4) {
   loc, ok := s.locations[name]
   if !ok {
-    loc := gl.GetUniformLocation(s.id, gl.Str(name + "\x00"))
-    s.locations[name] = loc
+    panic("Invalid name " + name)
   }
+  fmt.Println("Storing", name, "at", loc)
   gl.UniformMatrix4fv(loc, 1, false, &val[0])
 }
 
 func (s *Shader) LoadPerspective(window *Window, near, far float32) {
   projection := mgl32.Perspective(mgl32.DegToRad(45.0), float32(window.Width()) / float32(window.Height()), near, far)
   s.StoreUniform4f("projection", projection)
+
+  camera := mgl32.LookAtV(mgl32.Vec3{3, 3, 3}, mgl32.Vec3{0, 0, 0}, mgl32.Vec3{0, 1, 0})
+  s.StoreUniform4f("camera", camera)
 }
