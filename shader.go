@@ -14,7 +14,15 @@ type Shader struct {
   locations map[string]int32
 }
 
-func NewShader(vertex_path, fragment_path string) (*Shader, error) {
+func NewShaderGeo(geometry_path, vertex_path, fragment_path string) (*Shader, error) {
+  var geometry_source []byte
+  if geometry_path != "" {
+    var err error
+    geometry_source, err = ioutil.ReadFile(geometry_path)
+    if err != nil {
+      return nil, err
+    }
+  }
   vertex_source, err := ioutil.ReadFile(vertex_path)
   if err != nil {
     return nil, err
@@ -24,11 +32,17 @@ func NewShader(vertex_path, fragment_path string) (*Shader, error) {
     return nil, err
   }
 
+  var geometry uint32
+  if geometry_path != "" {
+    geometry, err = compile_shader(string(geometry_source) + "\x00", gl.GEOMETRY_SHADER)
+    if err != nil {
+      return nil, err
+    }
+  }
   vertex, err := compile_shader(string(vertex_source) + "\x00", gl.VERTEX_SHADER)
   if err != nil {
     return nil, err
   }
-
   fragment, err := compile_shader(string(fragment_source) + "\x00", gl.FRAGMENT_SHADER)
   if err != nil {
     return nil, err
@@ -36,6 +50,9 @@ func NewShader(vertex_path, fragment_path string) (*Shader, error) {
 
   program := gl.CreateProgram()
 
+  if geometry_path != "" {
+    gl.AttachShader(program, geometry)
+  }
   gl.AttachShader(program, vertex)
   gl.AttachShader(program, fragment)
   gl.LinkProgram(program)
@@ -61,6 +78,10 @@ func NewShader(vertex_path, fragment_path string) (*Shader, error) {
   (&s).LoadUniform("model")
   (&s).LoadUniform("color")
   return &s, nil
+}
+
+func NewShader(vertex_path, fragment_path string) (*Shader, error) {
+  return NewShaderGeo("", vertex_path, fragment_path)
 }
 
 func compile_shader(source string, stype uint32) (uint32, error) {
