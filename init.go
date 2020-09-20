@@ -22,6 +22,7 @@ func Init() error {
     log.Fatalln("Failed to initialize window:", err)
     return err
   }
+
   version := gl.GoStr(gl.GetString(gl.VERSION))
   fmt.Println("OpenGL version", version)
   return nil

@@ -19,8 +19,8 @@ func NewWindow(title string, width, height int) *Window {
     panic(err)
   }
   glfw_window.MakeContextCurrent()
-  gl.Enable(gl.CULL_FACE);
-  gl.Enable(gl.DEPTH_TEST);
+  gl.Enable(gl.CULL_FACE)
+  gl.Enable(gl.DEPTH_TEST)
 
   w := Window{}
   w.width = width
