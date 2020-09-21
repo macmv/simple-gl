@@ -1,9 +1,11 @@
-package gl
+package desktop
 
 import (
   "fmt"
   "strings"
   "io/ioutil"
+
+  "github.com/macmv/simple-gl/core"
 
   "github.com/go-gl/gl/v4.1-core/gl"
   "github.com/go-gl/mathgl/mgl32"
@@ -14,7 +16,7 @@ type Shader struct {
   locations map[string]int32
 }
 
-func NewShaderGeo(geometry_path, vertex_path, fragment_path string) (*Shader, error) {
+func (c *Core) NewShaderGeo(geometry_path, vertex_path, fragment_path string) (core.Shader, error) {
   var geometry_source []byte
   if geometry_path != "" {
     var err error
@@ -80,9 +82,10 @@ func NewShaderGeo(geometry_path, vertex_path, fragment_path string) (*Shader, er
   return &s, nil
 }
 
-func NewShader(vertex_path, fragment_path string) (*Shader, error) {
-  return NewShaderGeo("", vertex_path, fragment_path)
+func (c *Core) NewShader(vertex_path, fragment_path string) (core.Shader, error) {
+  return c.NewShaderGeo("", vertex_path, fragment_path)
 }
+
 
 func compile_shader(source string, stype uint32) (uint32, error) {
   shader := gl.CreateShader(stype)
@@ -137,7 +140,7 @@ func (s *Shader) StoreUniform3f(name string, val mgl32.Vec3) {
   gl.Uniform3f(loc, val[0], val[1], val[2])
 }
 
-func (s *Shader) LoadPerspective(window *Window, near, far float32) {
+func (s *Shader) LoadPerspective(window core.Window, near, far float32) {
   projection := mgl32.Perspective(mgl32.DegToRad(45.0), float32(window.Width()) / float32(window.Height()), near, far)
   s.StoreUniformMat4f("projection", projection)
 }
@@ -145,4 +148,8 @@ func (s *Shader) LoadPerspective(window *Window, near, far float32) {
 func (s *Shader) LoadCamera(x, y, z float32) {
   camera := mgl32.LookAtV(mgl32.Vec3{x, y, z}, mgl32.Vec3{0, 0, 0}, mgl32.Vec3{0, 1, 0})
   s.StoreUniformMat4f("camera", camera)
+}
+
+func (s *Shader) Id() uint32 {
+  return s.id
 }

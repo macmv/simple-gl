@@ -1,7 +1,9 @@
-package gl
+package desktop
 
 import (
   "runtime"
+
+  "github.com/macmv/simple-gl/core"
 
   "github.com/go-gl/gl/v4.1-core/gl"
   "github.com/go-gl/glfw/v3.3/glfw"
@@ -10,7 +12,7 @@ import (
 type Window struct {
   width, height int
   glfw *glfw.Window
-  current_shader *Shader
+  current_shader core.Shader
 }
 
 func NewWindow(title string, width, height int) *Window {
@@ -29,14 +31,14 @@ func NewWindow(title string, width, height int) *Window {
   return &w
 }
 
-func (w *Window) Use(shader *Shader) {
+func (w *Window) Use(shader core.Shader) {
   if w.current_shader == nil {
-    gl.UseProgram(shader.id)
+    gl.UseProgram(shader.Id())
     w.current_shader = shader
   }
 }
 
-func (w *Window) Render(model *Model) error {
+func (w *Window) Render(model *core.Model) error {
   if w.current_shader == nil {
     return nil
   }
@@ -45,9 +47,9 @@ func (w *Window) Render(model *Model) error {
 
   // gl.ActiveTexture(gl.TEXTURE0)
   // model.texture.Bind()
-  model.vao.Bind()
-  gl.DrawElements(gl.TRIANGLES, model.vao.length, gl.UNSIGNED_INT, nil)
-  model.vao.Unbind()
+  model.Vao().Bind()
+  gl.DrawElements(gl.TRIANGLES, model.Vao().Length(), gl.UNSIGNED_INT, nil)
+  model.Vao().Unbind()
 
   return nil
 }

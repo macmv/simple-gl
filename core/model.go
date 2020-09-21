@@ -1,4 +1,4 @@
-package gl
+package core
 
 import (
   "github.com/go-gl/mathgl/mgl32"
@@ -8,11 +8,11 @@ type Model struct {
   Transform mgl32.Mat4
   Color mgl32.Vec3
 
-  vao *VAO
+  vao VAO
 
-  texture *Texture
+  texture Texture
 }
 
-func (m *Model) Vao() *VAO {
+func (m *Model) Vao() VAO {
   return m.vao
 }

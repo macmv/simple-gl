@@ -1,4 +1,4 @@
-package gl
+package desktop
 
 import (
   "os"
@@ -6,6 +6,8 @@ import (
   "image"
   "image/draw"
   _ "image/png"
+
+  "github.com/macmv/simple-gl/core"
 
   "github.com/go-gl/gl/v4.1-core/gl"
 )
@@ -16,7 +18,7 @@ type Texture struct {
   width, height, depth int
 }
 
-func NewTexture3DFromData(width, height, depth int, data []uint8) *Texture {
+func (c *Core) NewTexture3DFromData(width, height, depth int, data []uint8) core.Texture {
   var id uint32
   gl.GenTextures(1, &id)
   gl.BindTexture(gl.TEXTURE_3D, id)

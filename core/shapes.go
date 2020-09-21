@@ -1,10 +1,10 @@
-package gl
+package core
 
 import (
   "github.com/go-gl/mathgl/mgl32"
 )
 
-func NewCube(width, height, depth float32) *Model {
+func NewCube(core Core, width, height, depth float32) *Model {
   indices := []int32{
     // Bottom
     0, 1, 2,
@@ -66,7 +66,7 @@ func NewCube(width, height, depth float32) *Model {
     0, 0, 0,
     0, 0, 0,
   }
-  vao := NewVAO()
+  vao := core.NewVAO()
   vao.SetData(indices, verts, uvs, normals)
   m := Model{}
   m.vao = vao

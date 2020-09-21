@@ -1,6 +1,8 @@
-package gl
+package desktop
 
 import (
+  "github.com/macmv/simple-gl/core"
+
   "github.com/go-gl/gl/v4.1-core/gl"
 )
 
@@ -9,7 +11,7 @@ type VAO struct {
   length int32
 }
 
-func NewVAO() *VAO {
+func (c *Core) NewVAO() core.VAO {
   var id uint32
   gl.GenVertexArrays(1, &id)
 
