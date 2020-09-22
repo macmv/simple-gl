@@ -1,93 +1,104 @@
 package desktop
 
 import (
-  "github.com/macmv/simple-gl/core"
+  "math"
+  "golang.org/x/mobile/gl"
 
-  "github.com/go-gl/gl/v4.1-core/gl"
+  "github.com/macmv/simple-gl/core"
 )
 
 type VAO struct {
-  id uint32
-  length int32
+  va gl.VertexArray
+  gl gl.Context
+  length int
 }
 
 func (c *Core) NewVAO() core.VAO {
-  var id uint32
-  gl.GenVertexArrays(1, &id)
-
   v := VAO{}
-  v.id = id
+  v.va = c.Gl().CreateVertexArray()
+  v.gl = c.Gl()
   return &v
 }
 
-func (v *VAO) Length() int32 {
+func (v *VAO) Length() int {
   return v.length
 }
 
 func (v *VAO) Bind() {
-  gl.BindVertexArray(v.id)
-  gl.EnableVertexAttribArray(0)
-  gl.EnableVertexAttribArray(1)
-  gl.EnableVertexAttribArray(2)
+  v.gl.BindVertexArray(v.va)
+  // v.gl.EnableVertexAttribArray(gl.Attrib{0})
+  // v.gl.EnableVertexAttribArray(gl.Attrib{1})
+  // v.gl.EnableVertexAttribArray(gl.Attrib{2})
 }
 
 func (v *VAO) Unbind() {
-  gl.DisableVertexAttribArray(0)
-  gl.DisableVertexAttribArray(1)
-  gl.DisableVertexAttribArray(2)
-  gl.BindVertexArray(0)
+  // v.gl.DisableVertexAttribArray(gl.Attrib{0})
+  // v.gl.DisableVertexAttribArray(gl.Attrib{1})
+  // v.gl.DisableVertexAttribArray(gl.Attrib{2})
+  v.gl.BindVertexArray(v.va)
 }
 
 func (v *VAO) SetData(indices []int32, vertices, uvs, normals []float32) {
-  v.length = int32(len(indices))
+  v.length = len(indices)
 
   // bind the vao
-  gl.BindVertexArray(v.id)
+  v.gl.BindVertexArray(v.va)
 
-  var vbo uint32
   // create empty buffer
-  gl.GenBuffers(1, &vbo)
+  vbo := v.gl.CreateBuffer()
   // bind the new buffer
-  gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, vbo)
-  // 4 is sizeof float
-  gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices) * 4, gl.Ptr(indices), gl.STATIC_DRAW)
+  v.gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, vbo)
+  // set data in buffer
+  v.gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, int_array_to_byte_array(indices), gl.STATIC_DRAW)
   // automatically bound to vao
 
   // create empty buffer
-  gl.GenBuffers(1, &vbo)
+  vbo = v.gl.CreateBuffer()
   // bind the new buffer
-  gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+  v.gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
   // set the data (4 is sizeof float)
-  gl.BufferData(gl.ARRAY_BUFFER, len(vertices) * 4, gl.Ptr(vertices), gl.STATIC_DRAW)
-  // bind vbo to vao
-  gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, nil)
-  // unbind vbo
-  gl.BindBuffer(gl.ARRAY_BUFFER, 0)
+  v.gl.BufferData(gl.ARRAY_BUFFER, float_array_to_byte_array(vertices), gl.STATIC_DRAW)
+  // bind vbo to shader
+  // v.gl.VertexAttribPointer(gl.Attrib{0}, 3, gl.FLOAT, false, 0, 0)
 
   // create empty buffer
-  gl.GenBuffers(1, &vbo)
+  vbo = v.gl.CreateBuffer()
   // bind the new buffer
-  gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+  v.gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
   // set the data (4 is sizeof float)
-  gl.BufferData(gl.ARRAY_BUFFER, len(uvs) * 4, gl.Ptr(uvs), gl.STATIC_DRAW)
-  // bind vbo to vao
-  gl.VertexAttribPointer(1, 2, gl.FLOAT, false, 0, nil)
-  // unbind vbo
-  gl.BindBuffer(gl.ARRAY_BUFFER, 0)
+  v.gl.BufferData(gl.ARRAY_BUFFER, float_array_to_byte_array(uvs), gl.STATIC_DRAW)
+  // bind vbo to shader
+  // v.gl.VertexAttribPointer(gl.Attrib{1}, 2, gl.FLOAT, false, 0, 0)
 
   // create empty buffer
-  gl.GenBuffers(1, &vbo)
+  vbo = v.gl.CreateBuffer()
   // bind the new buffer
-  gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+  v.gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
   // set the data (4 is sizeof float)
-  gl.BufferData(gl.ARRAY_BUFFER, len(normals) * 4, gl.Ptr(normals), gl.STATIC_DRAW)
-  // bind vbo to vao
-  gl.VertexAttribPointer(2, 3, gl.FLOAT, false, 0, nil)
-  // unbind vbo
-  gl.BindBuffer(gl.ARRAY_BUFFER, 0)
-
-  // unbind vao
-  gl.BindVertexArray(0)
+  v.gl.BufferData(gl.ARRAY_BUFFER, float_array_to_byte_array(normals), gl.STATIC_DRAW)
+  // bind vbo to shader
+  // v.gl.VertexAttribPointer(gl.Attrib{2}, 3, gl.FLOAT, false, 0, 0)
 }
 
+func int_array_to_byte_array(arr []int32) []byte {
+  buf := make([]byte, len(arr) * 4)
+  for i, v := range arr {
+    buf[i*4 + 0] = byte(v >> 24)
+    buf[i*4 + 1] = byte(v >> 16)
+    buf[i*4 + 2] = byte(v >> 8)
+    buf[i*4 + 3] = byte(v)
+  }
+  return buf
+}
 
+func float_array_to_byte_array(arr []float32) []byte {
+  buf := make([]byte, len(arr) * 4)
+  for i, v := range arr {
+    n := math.Float32bits(v)
+    buf[i*4 + 0] = byte(n >> 24)
+    buf[i*4 + 1] = byte(n >> 16)
+    buf[i*4 + 2] = byte(n >> 8)
+    buf[i*4 + 3] = byte(n)
+  }
+  return buf
+}

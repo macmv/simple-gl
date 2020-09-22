@@ -1,7 +1,7 @@
 package core
 
 type Window interface {
-  Use(shader Shader)
+  Use(shader *Shader)
   Finish()
 
   Width() int

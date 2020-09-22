@@ -1,7 +1,6 @@
 package gl
 
 import (
-  "fmt"
   "reflect"
 )
 
@@ -21,7 +20,6 @@ func On(name int, handle interface{}) {
 }
 
 func run(name int, values... interface{}) {
-  fmt.Println("Running event")
   handle, ok := events[name]
   if !ok {
     return

@@ -5,35 +5,37 @@ import (
 
   "github.com/macmv/simple-gl/core"
 
-  "github.com/go-gl/gl/v4.1-core/gl"
-  "github.com/go-gl/glfw/v3.3/glfw"
+  "golang.org/x/mobile/gl"
+  "golang.org/x/exp/shiny/screen"
 )
 
 type Window struct {
+  win screen.Window
+  gl gl.Context
+  current_shader *core.Shader
+  closed bool
   width, height int
-  glfw *glfw.Window
-  current_shader core.Shader
 }
 
-func NewWindow(title string, width, height int) *Window {
-  glfw_window, err := glfw.CreateWindow(width, height, title, nil, nil)
-  if err != nil {
-    panic(err)
-  }
-  glfw_window.MakeContextCurrent()
-  gl.Enable(gl.CULL_FACE)
-  gl.Enable(gl.DEPTH_TEST)
+func new_window(glctx gl.Context, win screen.Window) *Window {
+  // glfw_window, err := glfw.CreateWindow(width, height, title, nil, nil)
+  // if err != nil {
+  //   panic(err)
+  // }
+  // glfw_window.MakeContextCurrent()
+  glctx.Enable(gl.CULL_FACE)
+  glctx.Enable(gl.DEPTH_TEST)
 
   w := Window{}
-  w.width = width
-  w.height = height
-  w.glfw = glfw_window
+  w.win = win
+  w.gl = glctx
+  // w.glfw = glfw_window
   return &w
 }
 
-func (w *Window) Use(shader core.Shader) {
+func (w *Window) Use(shader *core.Shader) {
   if w.current_shader == nil {
-    gl.UseProgram(shader.Id())
+    w.gl.UseProgram(shader.Program())
     w.current_shader = shader
   }
 }
@@ -48,7 +50,7 @@ func (w *Window) Render(model *core.Model) error {
   // gl.ActiveTexture(gl.TEXTURE0)
   // model.texture.Bind()
   model.Vao().Bind()
-  gl.DrawElements(gl.TRIANGLES, model.Vao().Length(), gl.UNSIGNED_INT, nil)
+  w.gl.DrawElements(gl.TRIANGLES, model.Vao().Length(), gl.UNSIGNED_INT, 0)
   model.Vao().Unbind()
 
   return nil
@@ -59,18 +61,17 @@ func (w *Window) Finish() {
 }
 
 func (w *Window) Sync() {
-  w.glfw.SwapBuffers()
-  glfw.PollEvents()
-  gl.ClearColor(0, 0, 0, 1);
-  gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  // w.glfw.SwapBuffers()
+  // glfw.PollEvents()
+  w.gl.ClearColor(0, 0, 0, 1);
+  w.gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 }
 
 func (w *Window) Closed() bool {
-  return w.glfw.ShouldClose()
+  return w.closed
 }
 
 func (w *Window) Close() {
-  glfw.Terminate()
 }
 
 func (w *Window) Width() int { return w.width }

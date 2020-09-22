@@ -1,9 +1,13 @@
 package core
 
+import (
+  "golang.org/x/mobile/gl"
+)
+
 type Core interface {
   NewVAO() VAO
-  NewShaderGeo(geometry_path, vertex_path, fragment_path string) (Shader, error)
-  NewTexture3DFromData(width, height, depth int, data []uint8) Texture
+  NewTexture2DFromData(width, height int, data []byte) Texture
   Window() Window
+  Gl() gl.Context3
 }
 
